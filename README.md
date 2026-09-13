@@ -19,9 +19,13 @@ Can inventory-aware quoting reduce inventory risk without giving up the economic
 
 Using 160 Monte Carlo paths of 1,000 steps each, the inventory-aware strategy produced similar mean simulated P&L to the fixed-spread baseline while reducing mean inventory RMS by **87.3%** and mean maximum absolute inventory by **78.5%**. Its simulated P&L standard deviation was **2.31** versus **18.64** for the baseline. These figures are model-dependent simulation outputs, not live-trading returns.
 
-## Performance engineering benchmark
+## Options pricing, Greeks and performance benchmark
 
-The repository includes a reproducible scalar-versus-vectorized benchmark for inventory-aware quote generation. On the recorded one-million-quote workload (seed 42, median of seven runs), NumPy vectorization produced identical bid/ask arrays while reducing median runtime from **2.803 seconds to 0.00819 seconds**, a **342x speedup** and approximately **122.1 million quotes per second** on the benchmark environment. Runtime varies by hardware, so the script and raw JSON output are committed for verification.
+The repository includes European Black-Scholes pricing for calls and puts, Delta/Gamma/Vega calculations, inventory-aware option quoting and a reproducible scalar-versus-vectorized benchmark.
+
+On the committed reference workload of **1,000,000 option calculations** (price + Delta + Gamma + Vega, seed 42, median of seven measured runs after warm-up), the scalar Python implementation took **0.933 s** versus **0.0863 s** for the vectorized NumPy/SciPy implementation, a **10.8x speedup**. The two implementations agreed to a maximum absolute difference of approximately **5.68e-14**. Runtime is hardware-dependent, so the benchmark script, environment metadata and raw JSON timings are committed for verification.
+
+The repository also retains a separate quote-generation vectorization benchmark used for the market-making simulator; it should not be confused with the Black-Scholes benchmark above.
 
 ## Reproduce
 
@@ -31,10 +35,11 @@ python -m venv .venv
 pip install -r requirements.txt
 python src/run_experiment.py --paths 160 --steps 1000 --seed 7
 python src/performance_benchmark.py
+python src/options_benchmark.py --operations 1000000 --repeats 7 --seed 42
 pytest -q
 ```
 
-The simulation creates `outputs/path_results.csv` and `outputs/metrics.json`; the performance run writes `outputs/performance_benchmark.json`.
+The simulation creates `outputs/path_results.csv` and `outputs/metrics.json`; quote-generation benchmarking writes `outputs/performance_benchmark.json`; Black-Scholes benchmarking writes `outputs/options_pricing_benchmark.json`.
 
 ## Start-to-finish workflow
 
@@ -45,21 +50,27 @@ The simulation creates `outputs/path_results.csv` and `outputs/metrics.json`; th
 5. Apply hard inventory limits and an inventory-skew rule to control position risk.
 6. Repeat the experiment across hundreds of independent paths.
 7. Compare the baseline and inventory-aware strategies using both return and risk metrics.
-8. Profile a quote-generation workload and validate vectorized output against the scalar reference.
-9. Document assumptions and limitations so simulated outcomes are not presented as live-trading performance.
+8. Implement Black-Scholes call/put pricing plus Delta, Gamma and Vega.
+9. Generate a deterministic million-option workload and calculate price + Greeks with both scalar and vectorized implementations.
+10. Verify numerical agreement to `1e-10`, benchmark seven full runs, and store median runtimes plus environment metadata.
+11. Profile a separate quote-generation workload and validate vectorized output against its scalar reference.
+12. Document assumptions and limitations so simulated outcomes and hardware-dependent benchmark results are not presented as live-trading performance.
 
 ## Repository map
 
 - `src/simulate.py` - quote logic and single-path simulator
 - `src/run_experiment.py` - Monte Carlo experiment and metrics
-- `src/performance_benchmark.py` - reproducible scalar/vectorized quote benchmark
+- `src/performance_benchmark.py` - reproducible scalar/vectorized market-making quote benchmark
 - `src/options_pricing.py` - Black-Scholes pricing, Greeks and inventory-aware option quotes
 - `src/options_hedging.py` - discrete delta-hedging simulation
-- `tests/` - reproducibility, pricing, Greeks and risk-limit tests
+- `src/options_benchmark.py` - scalar vs vectorized Black-Scholes price + Greeks benchmark
+- `tests/test_options_benchmark.py` - numerical-equivalence and reproducibility tests for the options benchmark
+- `tests/` - reproducibility, pricing, Greeks, benchmark and risk-limit tests
 - `outputs/reference_metrics.json` - stored simulation results
-- `outputs/performance_benchmark.json` - recorded benchmark environment result
+- `outputs/performance_benchmark.json` - recorded quote-generation benchmark
+- `outputs/options_pricing_benchmark.json` - recorded Black-Scholes + Greeks benchmark with environment metadata
 - `RESEARCH_BRIEF.md` - concise interpretation for a recruiter/researcher
 
 ## Important limitation
 
-This is a **research simulation**, not evidence of live trading profitability or exchange-level latency. It omits a real limit-order book, queue priority, network latency, fees/rebates, market impact, correlated order flow, jumps and regime shifts. The benchmark measures batched numerical quote calculations on one environment, not end-to-end trading-system latency.
+This is a **research simulation**, not evidence of live trading profitability or exchange-level latency. It omits a real limit-order book, queue priority, network latency, fees/rebates, market impact, correlated order flow, jumps and regime shifts. Both performance benchmarks measure batched numerical calculations on one environment; neither is an end-to-end trading-system latency measurement.
