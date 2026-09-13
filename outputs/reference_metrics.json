@@ -1,0 +1,37 @@
+{
+  "fixed_spread": {
+    "paths": 160,
+    "mean_pnl": 12.857973501047956,
+    "median_pnl": 12.494247447511668,
+    "pnl_std": 18.63922574189986,
+    "loss_rate": 0.20625,
+    "p05_pnl": -13.381794163753522,
+    "p95_pnl": 45.3334990293845,
+    "mean_max_abs_inventory": 16.1,
+    "mean_inventory_rms": 8.72950654193468,
+    "mean_trades": 304.69375,
+    "mean_turnover": 30493.515937500004,
+    "mean_spread_capture": 13.656763274272649,
+    "mean_adverse_selection": 0.02117891067185109
+  },
+  "inventory_aware": {
+    "paths": 160,
+    "mean_pnl": 12.887535415990934,
+    "median_pnl": 12.857154554603596,
+    "pnl_std": 2.312955399063024,
+    "loss_rate": 0.0,
+    "p05_pnl": 9.079499999999904,
+    "p95_pnl": 16.624963241593605,
+    "mean_max_abs_inventory": 3.46875,
+    "mean_inventory_rms": 1.109480280026611,
+    "mean_trades": 294.91875,
+    "mean_turnover": 29468.737187500003,
+    "mean_spread_capture": 12.654329248639655,
+    "mean_adverse_selection": -0.04120506771505683
+  },
+  "comparison": {
+    "mean_pnl_delta": 0.029561914942977552,
+    "inventory_rms_reduction_pct": 87.29045823269729,
+    "max_inventory_reduction_pct": 78.45496894409938
+  }
+}
