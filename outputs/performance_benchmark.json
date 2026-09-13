@@ -1,0 +1,9 @@
+{
+  "operations": 1000000,
+  "repeats": 7,
+  "scalar_median_seconds": 2.802547144000016,
+  "vectorized_median_seconds": 0.008189643999969576,
+  "speedup_x": 342.20622337313165,
+  "vectorized_throughput_per_second": 122105429.73586091,
+  "seed": 42
+}
