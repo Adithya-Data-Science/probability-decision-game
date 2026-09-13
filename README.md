@@ -19,6 +19,10 @@ Can inventory-aware quoting reduce inventory risk without giving up the economic
 
 Using 160 Monte Carlo paths of 1,000 steps each, the inventory-aware strategy produced similar mean simulated P&L to the fixed-spread baseline while reducing mean inventory RMS by **87.3%** and mean maximum absolute inventory by **78.5%**. Its simulated P&L standard deviation was **2.31** versus **18.64** for the baseline. These figures are model-dependent simulation outputs, not live-trading returns.
 
+## Performance engineering benchmark
+
+The repository includes a reproducible scalar-versus-vectorized benchmark for inventory-aware quote generation. On the recorded one-million-quote workload (seed 42, median of seven runs), NumPy vectorization produced identical bid/ask arrays while reducing median runtime from **2.803 seconds to 0.00819 seconds**, a **342x speedup** and approximately **122.1 million quotes per second** on the benchmark environment. Runtime varies by hardware, so the script and raw JSON output are committed for verification.
+
 ## Reproduce
 
 ```bash
@@ -26,10 +30,11 @@ python -m venv .venv
 # Windows PowerShell: .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 python src/run_experiment.py --paths 160 --steps 1000 --seed 7
+python src/performance_benchmark.py
 pytest -q
 ```
 
-The run creates `outputs/path_results.csv` and `outputs/metrics.json`.
+The simulation creates `outputs/path_results.csv` and `outputs/metrics.json`; the performance run writes `outputs/performance_benchmark.json`.
 
 ## Start-to-finish workflow
 
@@ -40,17 +45,21 @@ The run creates `outputs/path_results.csv` and `outputs/metrics.json`.
 5. Apply hard inventory limits and an inventory-skew rule to control position risk.
 6. Repeat the experiment across hundreds of independent paths.
 7. Compare the baseline and inventory-aware strategies using both return and risk metrics.
-8. Document assumptions and limitations so simulated outcomes are not presented as live-trading performance.
+8. Profile a quote-generation workload and validate vectorized output against the scalar reference.
+9. Document assumptions and limitations so simulated outcomes are not presented as live-trading performance.
 
 ## Repository map
 
-- `src/market_maker.py` - quote logic and single-path simulator
+- `src/simulate.py` - quote logic and single-path simulator
 - `src/run_experiment.py` - Monte Carlo experiment and metrics
-- `tests/test_market_maker.py` - reproducibility, quote and risk-limit tests
-- `outputs/reference_metrics.json` - stored reference results
+- `src/performance_benchmark.py` - reproducible scalar/vectorized quote benchmark
+- `src/options_pricing.py` - Black-Scholes pricing, Greeks and inventory-aware option quotes
+- `src/options_hedging.py` - discrete delta-hedging simulation
+- `tests/` - reproducibility, pricing, Greeks and risk-limit tests
+- `outputs/reference_metrics.json` - stored simulation results
+- `outputs/performance_benchmark.json` - recorded benchmark environment result
 - `RESEARCH_BRIEF.md` - concise interpretation for a recruiter/researcher
-- `requirements.txt` - dependencies
 
 ## Important limitation
 
-This is a **research simulation**, not evidence of live trading profitability. It omits a real limit-order book, queue priority, latency, fees/rebates, market impact, correlated order flow, jumps and regime shifts. Its purpose is to demonstrate probability, market microstructure intuition, experimental design, risk controls and reproducible quantitative reasoning.
+This is a **research simulation**, not evidence of live trading profitability or exchange-level latency. It omits a real limit-order book, queue priority, network latency, fees/rebates, market impact, correlated order flow, jumps and regime shifts. The benchmark measures batched numerical quote calculations on one environment, not end-to-end trading-system latency.
