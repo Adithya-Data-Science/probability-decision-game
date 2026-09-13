@@ -1,0 +1,13 @@
+{
+  "paths": 1000,
+  "steps": 30,
+  "mean_hedge_pnl": 0.0003436275623966738,
+  "hedge_pnl_std": 0.5520562133095056,
+  "mean_abs_hedge_error": 0.4150911464894498,
+  "p95_abs_hedge_error": 1.1410922743558682,
+  "mean_turnover_shares": 2.7198202409521492,
+  "initial_option_price": 3.5562611073583525,
+  "initial_delta": 0.5281943623617571,
+  "initial_gamma": 0.046134234382562894,
+  "initial_vega": 13.730426899572292
+}
