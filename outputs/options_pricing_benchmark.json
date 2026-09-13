@@ -1,0 +1,35 @@
+{
+  "workload": "European Black-Scholes price + delta + gamma + vega",
+  "operations": 1000000,
+  "repeats": 7,
+  "seed": 42,
+  "scalar_times_seconds": [
+    0.995707091000213,
+    0.9997098999999707,
+    0.9364565639998546,
+    0.9306880619999447,
+    0.9330158349998783,
+    0.931655383999896,
+    0.931919083999901
+  ],
+  "vectorized_times_seconds": [
+    0.20177148500010844,
+    0.15449790899992877,
+    0.08110995199990612,
+    0.08634189099984724,
+    0.07890396900006635,
+    0.08683035500007463,
+    0.07925375800004986
+  ],
+  "scalar_median_seconds": 0.9330158349998783,
+  "vectorized_median_seconds": 0.08634189099984724,
+  "speedup_x": 10.806062088697235,
+  "max_abs_error": 5.684341886080802e-14,
+  "environment": {
+    "python": "3.13.5",
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "note": "Runtime is hardware-dependent; numerical equality is validated to 1e-10."
+}
